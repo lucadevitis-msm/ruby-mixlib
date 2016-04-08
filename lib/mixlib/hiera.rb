@@ -8,16 +8,13 @@ module Mixlib
 
     def hiera_config(options = {})
       file = options[:config_file] || '/etc/hiera.yaml'
-      override = options[:config_override] || {}
-      @hiera_config ||= {}
-      @hiera_config[file] ||= YAML.load_file(file).freeze
-      override.update(@hiera_config[file])
+      (@hiera_config ||= {})[file] ||= YAML.load_file(file).freeze
+      (options[:config_override] || {}).dup.update(@hiera_config[file])
     end
 
     def hiera_instance(options = {})
       config = hiera_config(options)
-      @hiera_instance || = {}
-      @hiera_instance[config.hash] ||= Hiera.new(config: config)
+      (@hiera_instance ||= {})[config.hash] ||= Hiera.new(config: config)
     end
 
     def hiera_lookup(key, options = {})
