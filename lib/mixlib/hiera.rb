@@ -6,18 +6,19 @@ module Mixlib
   module Hiera
     include Mixlib::Facter
 
-    def hiera_config(options = {})
+    def hiera_config(options = nil)
+      options ||= {}
       file = options[:config_file] || '/etc/hiera.yaml'
       (@hiera_config ||= {})[file] ||= YAML.load_file(file).freeze
-      (options[:config_override] || {}).dup.update(@hiera_config[file])
+      (options[:config_override] || {}).dup.update @hiera_config[file]
     end
 
-    def hiera_instance(options = {})
-      config = hiera_config(options)
+    def hiera_instance(options = nil)
+      config = hiera_config options
       (@hiera_instance ||= {})[config.hash] ||= Hiera.new(config: config)
     end
 
-    def hiera_lookup(key, options = {})
+    def hiera_lookup(key, options = nil)
       hiera_instance.lookup key,
                             options[:default],
                             options[:scope] || facter.to_hiera_scope,
